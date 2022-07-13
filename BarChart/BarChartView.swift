@@ -12,6 +12,7 @@ protocol BarChartViewDataSource: NSObjectProtocol {
 }
 
 final class BarChartView: UIView {
+    private let barChartCellReuseIdentifier: String = "barchartview.collectionview.barchartcell"
     private var collectionView: UICollectionView!
     
     weak var dataSource: BarChartViewDataSource? = nil {
@@ -19,32 +20,32 @@ final class BarChartView: UIView {
             let entries = dataSource?.dataEntries(forBarChart: self) ?? []
             maxValueEntry = entries.max(by: { $1.value > $0.value })
             self.entries = entries
-            let estimatedBarWidth = getEstimatedBarWidth()
-            self.estimatedBarWidth = estimatedBarWidth > .zero ? estimatedBarWidth : BarChartCell.defaultBarWidth
+            updateEstimatedBarWidth()
         }
     }
     
     private(set) var entries: [BarChartDataEntry] = []
     private var maxValueEntry: BarChartDataEntry? = nil
-    private var estimatedBarWidth: CGFloat = BarChartCell.defaultBarWidth
+    private var estimatedCellWidth: CGFloat = .zero
+    var shouldUseEstimatedCellWidth: Bool = true
     var shouldUseEstimatedBarWidth: Bool = true
-    var barWidth: CGFloat = 20 {
-        willSet {
-            estimatedBarWidth = barWidth
-        }
-    }
+    var cellWidth: CGFloat = .zero
+    var barWidth: CGFloat = .zero
     /// Update this value to display your custom BarChartCell.
     var barCell: BarChartCell.Type = BarChartCell.self {
         willSet {
-            collectionView.register(newValue.self, forCellWithReuseIdentifier: newValue.resuseIdentifier)
-            
+            collectionView.register(newValue.self, forCellWithReuseIdentifier: barChartCellReuseIdentifier)
         }
+    }
+    
+    private func updateEstimatedBarWidth() {
+        let estimatedCellWidth = getEstimatedCellWidth()
+        self.estimatedCellWidth = max(.zero, estimatedCellWidth)
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        let estimatedBarWidth = getEstimatedBarWidth()
-        self.estimatedBarWidth = estimatedBarWidth > .zero ? estimatedBarWidth : BarChartCell.defaultBarWidth
+        updateEstimatedBarWidth()
     }
     
     private func config() {
@@ -66,10 +67,6 @@ final class BarChartView: UIView {
 // MARK: - CollectionView
 
 extension BarChartView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    private var cellReuseIdentifier: String {
-        barCell.resuseIdentifier
-    }
-    
     private func getCollectionViewLayout() -> UICollectionViewLayout {
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.scrollDirection = .horizontal
@@ -86,7 +83,7 @@ extension BarChartView: UICollectionViewDataSource, UICollectionViewDelegateFlow
         collectionView.bounces = false
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.register(BarChartCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
+        collectionView.register(BarChartCell.self, forCellWithReuseIdentifier: barChartCellReuseIdentifier)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(collectionView)
         NSLayoutConstraint.activate([
@@ -104,18 +101,17 @@ extension BarChartView: UICollectionViewDataSource, UICollectionViewDelegateFlow
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseIdentifier, for: indexPath)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: barChartCellReuseIdentifier, for: indexPath)
         guard let barChartCell = cell as? BarChartCell, entries.count > indexPath.item else { return cell }
         let maxValue: Double = maxValueEntry?.value ?? .zero
-        barChartCell.barWidth = shouldUseEstimatedBarWidth ? estimatedBarWidth : barWidth
-        barChartCell.shouldUseEstimatedWidth = shouldUseEstimatedBarWidth
+        barChartCell.barViewWidth = shouldUseEstimatedBarWidth ? shouldUseEstimatedCellWidth ? estimatedCellWidth : cellWidth : barWidth
         barChartCell.update(usingData: entries[indexPath.item], maxValue: maxValue)
         return barChartCell
     }
     
     // MARK: Delegate
     
-    private func getEstimatedBarWidth() -> CGFloat {
+    private func getEstimatedCellWidth() -> CGFloat {
         let cellPadding: UIEdgeInsets = BarChartCell.padding
         let lineSpacing: CGFloat = (collectionView.collectionViewLayout as? UICollectionViewFlowLayout)?.minimumLineSpacing ?? .zero
         let fullWidth: CGFloat = collectionView.frame.width - collectionView.contentInset.left - collectionView.contentInset.right - cellPadding.left - cellPadding.right - (CGFloat(entries.count)*lineSpacing)
@@ -125,7 +121,7 @@ extension BarChartView: UICollectionViewDataSource, UICollectionViewDelegateFlow
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let targetHeight: CGFloat = collectionView.frame.height - collectionView.contentInset.top - collectionView.contentInset.bottom
-        let estimatedWidth: CGFloat = shouldUseEstimatedBarWidth ? estimatedBarWidth : barWidth
+        let estimatedWidth: CGFloat = shouldUseEstimatedCellWidth ? estimatedCellWidth : cellWidth
         return CGSize(width: estimatedWidth, height: targetHeight)
     }
 }

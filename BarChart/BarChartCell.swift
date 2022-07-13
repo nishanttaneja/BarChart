@@ -19,7 +19,6 @@ class BarChartCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12)
         label.textAlignment = .center
-        label.adjustsFontSizeToFitWidth = true
         return label
     }()
     
@@ -33,25 +32,12 @@ class BarChartCell: UICollectionViewCell {
         }
     }
     private var barViewWidthConstraint: NSLayoutConstraint! = nil
-    private var barViewWidth: CGFloat {
+    var barViewWidth: CGFloat {
         get {
             barViewWidthConstraint.constant
         }
         set {
             barViewWidthConstraint.constant = newValue
-        }
-    }
-    var barWidth: CGFloat = defaultBarWidth
-    var shouldUseEstimatedWidth: Bool = false {
-        willSet {
-            if newValue {
-                barViewWidth = barWidth
-                if barWidth < 10 {
-                    titleLabel.text = nil
-                }
-            } else {
-                barViewWidth = barWidth
-            }
         }
     }
     
@@ -81,7 +67,7 @@ class BarChartCell: UICollectionViewCell {
         let titleLabelHeight: CGFloat = Self.titleLabelHeight
         let padding: UIEdgeInsets = Self.padding
         barViewHeightConstraint = barView.heightAnchor.constraint(equalToConstant: .zero)
-        barViewWidthConstraint = barView.widthAnchor.constraint(equalToConstant: Self.defaultBarWidth)
+        barViewWidthConstraint = barView.widthAnchor.constraint(equalToConstant: .zero)
         NSLayoutConstraint.activate([
             titleLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor),
             titleLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor),
@@ -110,9 +96,7 @@ class BarChartCell: UICollectionViewCell {
 }
 
 extension BarChartCell {
-    static let resuseIdentifier: String = "BarChartCell-UICollectionViewCell"
     static private let titleLabelHeight: CGFloat = 24
-    static let defaultBarWidth: CGFloat = 20
     static let padding = UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4)
 }
 
