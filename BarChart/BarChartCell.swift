@@ -7,11 +7,11 @@
 
 import UIKit
 
-final class BarChartCell: UICollectionViewCell {
-    private let barBackgroundView = UIView()
-    private let barView = UIView()
-    private lazy var barStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [barBackgroundView, barView])
+class BarChartCell: UICollectionViewCell {
+    let barTopView = UIView()
+    let barView = UIView()
+    private(set) lazy var barStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [barTopView, barView])
         stackView.axis = .vertical
         return stackView
     }()
@@ -57,10 +57,10 @@ final class BarChartCell: UICollectionViewCell {
     
     var barBackgroundColor: UIColor? {
         get {
-            barBackgroundView.backgroundColor
+            barTopView.backgroundColor
         }
         set {
-            barBackgroundView.backgroundColor = newValue
+            barTopView.backgroundColor = newValue
         }
     }
     var barTintColor: UIColor? {
@@ -72,7 +72,7 @@ final class BarChartCell: UICollectionViewCell {
         }
     }
     
-    private func config() {
+    func config() {
         barView.translatesAutoresizingMaskIntoConstraints = false
         barStackView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false

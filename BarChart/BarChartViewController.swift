@@ -33,6 +33,7 @@ final class BarChartViewController: UIViewController {
 extension BarChartViewController: BarChartViewDataSource {
     private func configBarChartView() {
         barChartView.dataSource = self
+        barChartView.barCell = BarChartCell2.self
         barChartView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(barChartView)
         NSLayoutConstraint.activate([

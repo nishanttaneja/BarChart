@@ -33,6 +33,12 @@ final class BarChartView: UIView {
             estimatedBarWidth = barWidth
         }
     }
+    var barCell: BarChartCell.Type = BarChartCell.self {
+        willSet {
+            collectionView.register(newValue.self, forCellWithReuseIdentifier: newValue.resuseIdentifier)
+            
+        }
+    }
     
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -60,7 +66,7 @@ final class BarChartView: UIView {
 
 extension BarChartView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     private var cellReuseIdentifier: String {
-        BarChartCell.resuseIdentifier
+        barCell.resuseIdentifier
     }
     
     private func getCollectionViewLayout() -> UICollectionViewLayout {
