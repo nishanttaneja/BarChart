@@ -20,18 +20,13 @@ final class BarChartView: UIView {
             maxValueEntry = entries.max(by: { $1.value > $0.value })
             self.entries = entries
             let estimatedBarWidth = getEstimatedBarWidth()
-            debugPrint("calculation... ", estimatedBarWidth)
             self.estimatedBarWidth = estimatedBarWidth > .zero ? estimatedBarWidth : BarChartCell.defaultBarWidth
         }
     }
     
     private(set) var entries: [BarChartDataEntry] = []
     private var maxValueEntry: BarChartDataEntry? = nil
-    private var estimatedBarWidth: CGFloat = BarChartCell.defaultBarWidth {
-        didSet {
-            debugPrint(#function, estimatedBarWidth)
-        }
-    }
+    private var estimatedBarWidth: CGFloat = BarChartCell.defaultBarWidth
     var shouldUseEstimatedBarWidth: Bool = true
     var barWidth: CGFloat = 20 {
         willSet {
@@ -42,7 +37,6 @@ final class BarChartView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         let estimatedBarWidth = getEstimatedBarWidth()
-        debugPrint("calculation... ", estimatedBarWidth)
         self.estimatedBarWidth = estimatedBarWidth > .zero ? estimatedBarWidth : BarChartCell.defaultBarWidth
     }
     
