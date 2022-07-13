@@ -33,6 +33,7 @@ final class BarChartView: UIView {
             estimatedBarWidth = barWidth
         }
     }
+    /// Update this value to display your custom BarChartCell.
     var barCell: BarChartCell.Type = BarChartCell.self {
         willSet {
             collectionView.register(newValue.self, forCellWithReuseIdentifier: newValue.resuseIdentifier)
